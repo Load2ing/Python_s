@@ -535,6 +535,27 @@ class GetData:
 
         return class_name, admin_permission_list
 
+    def check_device_admin_class(self):
+        BIND_DEVICE_ADMIN = "android.permission.BIND_DEVICE_ADMIN"
+        DEVICE_ADMIN_ENABLED = "android.app.action.DEVICE_ADMIN_ENABLED"
+
+        admin_count = 0
+
+        receiver_element_list = self.getElementData_all("receiver")
+        for element in receiver_element_list:
+            now_pos, attr_list = element.call_data()
+            if now_pos[-1] == "receiver":
+                class_name = attr_list["name"]
+
+            if attr_list.get("permission") == BIND_DEVICE_ADMIN:
+                print("%s : BIND_DEVICE Detect" % class_name)
+
+            if now_pos[-2] == "intent-filter" and now_pos[-1] == "action":
+                if attr_list["name"] == DEVICE_ADMIN_ENABLED:
+                    print("%s-Intent : DEVICE_ADMIN Detect" % class_name)
+                    admin_count += 1
+        return admin_count
+
     def get_high_priority(self):
         priority = 999
         e_name = ""
@@ -558,6 +579,23 @@ class GetData:
 
         print("High Priority list : ", high_priority_dict)
         return high_priority_dict
+
+    def check_high_priority(self):
+        priority = 999
+        priority_count = 0
+
+        application_element_list = self.getElementData_all("application")
+        for element in application_element_list:
+            now_pos, attr_list = element.call_data()
+            if len(now_pos) == 3:
+                e_name = now_pos[-1]
+                present_class_name = (attr_list.get("name"))
+
+            if now_pos[-1] == "intent-filter" and attr_list.get("priority") is not None:
+                if attr_list.get("priority") >= 999:
+                    priority_count += 1
+
+        return priority_count
 
 def scanning_dir(path, axml_obj):
     if os.path.isfile(path):
