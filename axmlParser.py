@@ -34,9 +34,7 @@ class axml_parse:
         self.ELEMENT_POSITION = []
         self.ELEMENT_OBJECT_LIST = []
 
-
     def axml_getData(self, search_option):
-
         getData_obj = GetData(self.ELEMENT_OBJECT_LIST)
         if search_option == "package_name":
             return getData_obj.get_package_name()
@@ -60,6 +58,7 @@ class axml_parse:
         self.ELEMENT_OBJECT_LIST = []
 
         ext = os.path.splitext(arg_path)[-1]
+
         if ext is ".apk" or ".bin":
             try:
                 zip_obj = zipfile.ZipFile(arg_path, mode='r')
@@ -71,7 +70,9 @@ class axml_parse:
             target_obj = open(arg_path, mode='rb')
             self.raw_data = target_obj.read()
 
-        self.type_xml()
+        if self.type_xml() == -1: # TYPE ERROR
+            return -1
+
         self.type_string_pool()
         self.type_resource_map()
 
@@ -100,9 +101,10 @@ class axml_parse:
 
             else:
                 print("HEADER ERROR - OFFSET : 0x%04X" % self.OFT)
-                exit(0)
+                return -1
 
         self.xml_end_namespace()
+        return 1
 
     def type_xml(self):
         TYPE_XML_SIZE = 2
@@ -115,7 +117,7 @@ class axml_parse:
             print("[OK] TYPE_XML")
         else:
             print("[ERR] TYPE_XML ERROR")
-            exit(0)
+            return -1
 
         header = self.read_data(HEADER_SIZE)
         chunk  = self.read_data(CHUNK_SIZE)
@@ -497,7 +499,8 @@ class GetData:
 
     def get_package_name(self):
         manifest_attr_list = self.getElementData("manifest")
-        print(manifest_attr_list['package'])
+        #print(manifest_attr_list['package'])
+        return manifest_attr_list['package']
 
     def get_permission(self):
         permission_list = []
@@ -506,7 +509,8 @@ class GetData:
         for element in permission_element_list:
             now_pos, attr_list = element.call_data()
             permission_list.append(attr_list['name'])
-        print(permission_list)
+        #print(permission_list)
+        return permission_list
 
     def get_device_admin_class(self):
 
