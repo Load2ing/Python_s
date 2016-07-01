@@ -120,9 +120,7 @@ class axml_parse:
 
         header_type = self.read_data(TYPE_XML_SIZE)
 
-        if(self.TYPE_XML == header_type):
-            print("[OK] TYPE_XML")
-        else:
+        if self.TYPE_XML != header_type:
             print("[ERR] TYPE_XML ERROR")
             return -1
 
