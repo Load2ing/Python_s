@@ -13,7 +13,6 @@ import sys
 import os
 import zipfile
 import copy
-import io
 
 class axml_parse:
     def __init__(self):
@@ -36,20 +35,23 @@ class axml_parse:
         self.ELEMENT_OBJECT_LIST = []
 
 
-    def axml_getData(self, target_name):
-        getData_obj = GetData(self.ELEMENT_OBJECT_LIST)
+    def axml_getData(self, search_option):
 
-        if target_name == "package_name":
+        getData_obj = GetData(self.ELEMENT_OBJECT_LIST)
+        if search_option == "package_name":
             return getData_obj.get_package_name()
-        elif target_name == "permission":
+        elif search_option == "permission":
             return getData_obj.get_permission()
-        elif target_name == "device_admin":
+        elif search_option == "device_admin":
             return getData_obj.get_device_admin_class()
-        elif target_name == "high_priority":
+        elif search_option == "high_priority":
             return getData_obj.get_high_priority()
+        elif search_option == "check_device_admin":
+            return getData_obj.check_device_admin_class()
+        elif search_option == "check_priority":
+            return getData_obj.check_high_priority()
 
     def run_parse(self, arg_path):
-
         ### 함수가 다시 사용될경우를 위해 초기화 ###
         self.OFT = 0
         self.raw_data = ""
@@ -68,9 +70,6 @@ class axml_parse:
         else:
             target_obj = open(arg_path, mode='rb')
             self.raw_data = target_obj.read()
-
-            #with io.open(arg_path, mode='r', encoding="utf-16") as target_obj:
-             #   self.raw_data = target_obj.read()
 
         self.type_xml()
         self.type_string_pool()
@@ -104,7 +103,6 @@ class axml_parse:
                 exit(0)
 
         self.xml_end_namespace()
-        # return self.ELEMENT_OBJECT_LIST
 
     def type_xml(self):
         TYPE_XML_SIZE = 2
@@ -140,7 +138,7 @@ class axml_parse:
         OFT_TYPE_STRING_POOL = 0
         OFT_STRING_START = 0
         STRING_COUNT = 0
-        
+
         header_type = self.read_data(TYPE_STRING_POOL_SIZE)
         if self.TYPE_STRING_POOL == header_type:
             print("[OK] TYPE_STRING_POOL")
@@ -231,7 +229,6 @@ class axml_parse:
         print("XML_START_NAMESPACE - PREFIX : %s, URI : %s" % (self.getString(prefix), self.getString(uri)))
         print("[FIN] XML_START_NAMESPACE")
 
-
     def xml_start_element(self):
         TYPE_XML_START_ELEMENT_SIZE = 2
         HEADER_SIZE = 2
@@ -270,7 +267,7 @@ class axml_parse:
             attr_name, attr_data = self.read_attribute()
             attr_list[attr_name] = attr_data
 
-        print("%s" % (tab), element_name, attr_list)
+        #print("%s" % (tab), element_name, attr_list)
         return element_name, attr_list
 
     def read_attribute(self):
@@ -577,7 +574,7 @@ class GetData:
 
                     #print("Priority : %d, class name : %s" % (attr_list.get("priority"), present_class_name))
 
-        print("High Priority list : ", high_priority_dict)
+        #print("High Priority list : ", high_priority_dict)
         return high_priority_dict
 
     def check_high_priority(self):
@@ -617,9 +614,8 @@ def run_parser(f_path, axml_obj):
     print("[%d] Parse : %s" % (g_apk_count, f_path))
     print("===============")
     axml_obj.run_parse(f_path)
-    axml_obj.axml_getData("device_admin")
-    axml_obj.axml_getData("permission")
-    axml_obj.axml_getData("high_priority")
+
+    print("[%d] Parse Finish : %s" % (g_apk_count, f_path))
 
 
 if __name__ == "__main__":
@@ -641,13 +637,6 @@ if __name__ == "__main__":
 
     print("FIN")
 
-    """
-    axml = axml_parse()
-    axml.run_parse(arg_path)
-    axml.axml_getData("device_admin")
-    axml.axml_getData("permission")
-    axml.axml_getData("high_priority")
-    """
 
 
 
