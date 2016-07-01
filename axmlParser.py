@@ -57,18 +57,25 @@ class axml_parse:
         self.ELEMENT_POSITION = []
         self.ELEMENT_OBJECT_LIST = []
 
-        ext = os.path.splitext(arg_path)[-1]
+        zip_header = b"\x50\x4b\03\x04"
 
-        if ext is ".apk" or ".bin":
-            try:
-                zip_obj = zipfile.ZipFile(arg_path, mode='r')
-            except zipfile.BadZipFile as e:
-                print("Zip file error")
-                return -1
-            self.raw_data = zip_obj.read("AndroidManifest.xml")
-        else:
-            target_obj = open(arg_path, mode='rb')
-            self.raw_data = target_obj.read()
+        with open(arg_path, mode="rb") as target_file:
+            magic_header = target_file.read(4)
+
+            if magic_header == zip_header:
+                try:
+                    zip_obj = zipfile.ZipFile(arg_path, mode='r')
+                    self.raw_data = zip_obj.read("AndroidManifest.xml")
+                except zipfile.BadZipFile as e:
+                    print("Zip file error")
+                    return -1
+
+            elif magic_header == self.TYPE_XML:
+                target_obj = open(arg_path, mode='rb')
+                self.raw_data = target_obj.read()
+
+            else:
+                print("[RUN_PARSE] FILETYPE ERROR")
 
         if self.type_xml() == -1: # TYPE ERROR
             return -1
