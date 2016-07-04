@@ -507,7 +507,7 @@ class GetData:
     def get_package_name(self):
         manifest_attr_list = self.getElementData("manifest")
         #print(manifest_attr_list['package'])
-        return manifest_attr_list['package']
+        return manifest_attr_list.get('package')
 
     def get_permission(self):
         permission_list = []
@@ -515,7 +515,7 @@ class GetData:
         permission_element_list = self.getElementData_all("uses-permission")
         for element in permission_element_list:
             now_pos, attr_list = element.call_data()
-            permission_list.append(attr_list['name'])
+            permission_list.append(attr_list.get('name'))
         #print(permission_list)
         return permission_list
 
@@ -530,7 +530,7 @@ class GetData:
         for element in receiver_element_list:
             now_pos, attr_list = element.call_data()
             if now_pos[-1] == "receiver":
-                class_name = attr_list["name"]
+                class_name = attr_list.get("name")
 
             if attr_list.get("permission") == BIND_DEVICE_ADMIN:
                 print("%s : BIND_DEVICE Detect" % class_name)
@@ -553,7 +553,7 @@ class GetData:
         for element in receiver_element_list:
             now_pos, attr_list = element.call_data()
             if now_pos[-1] == "receiver":
-                class_name = attr_list["name"]
+                class_name = attr_list.get("name")
 
             if attr_list.get("permission") == BIND_DEVICE_ADMIN:
                 print("%s : BIND_DEVICE Detect" % class_name)
@@ -625,7 +625,10 @@ def run_parser(f_path, axml_obj):
     print("[%d] Parse : %s" % (g_apk_count, f_path))
     print("===============")
     axml_obj.run_parse(f_path)
-
+    axml_obj.axml_getData("device_admin")
+    axml_obj.axml_getData("check_device_admin")
+    axml_obj.axml_getData("permission")
+    axml_obj.axml_getData("package_name")
     print("[%d] Parse Finish : %s" % (g_apk_count, f_path))
 
 
